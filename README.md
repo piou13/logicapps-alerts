@@ -30,7 +30,7 @@ This demonstration shows how to implement these 3 kinds of monitoring/alerts art
 Let's say we have a solution that relies on different LogicApps in the background and we want to manage monitoring and errors at this layer. Using the 3 previously described Azure features, we can start with this kind of high-level architecture:
 
 
-![](docs/highlevel.png =600x)
+![](./docs/highlevel.png =600x)
 
 
 Into the Azure Resources Group, we will find our bunch of LogicApps we want to manage.
