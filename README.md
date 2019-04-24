@@ -51,8 +51,9 @@ Our demo scenario contains a bunch of LogicApps.
 
 Because our solution could be overloaded or subject to different problems, We want to increase reliability by getting more information about runs and being able to do something "useful" when an unexpected event occurs.
 
-For our scenario, let's build the 2 dummies LogicApps, one that success (logicapp-1) and one that fails (logicapp-2).
-We use *Scopes* inside the LogicApps to better structure our workflow and because it's very important in order to manage error handling. More infoemation about the usage of *Scopes* here: https://docs.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-run-steps-group-scopes.
+For the purpose of our scenario, let's build the 2 dummies LogicApps, one that success (logicapp-1) and one that fails (logicapp-2).
+
+We use *Scopes* inside the LogicApps to better structure our workflow and because it's very important in order to manage error handling. More information about the usage of *Scopes* here: https://docs.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-run-steps-group-scopes.
 
 
 **logicapp-1**
