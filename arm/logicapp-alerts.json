@@ -1,0 +1,511 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "AlertEmail": {
+            "type": "string",
+            "metadata": {
+                "description": "Email address to send alerts to."
+            }
+        }
+    },
+    "variables": {
+        "logicapp2": "[resourceId('Microsoft.Logic/workflows', 'logicapp-2')]",
+        "logicappError": "[resourceId('Microsoft.Logic/workflows', 'logicapp-error')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "name": "logicapp-1",
+            "apiVersion": "2016-06-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "actions": {
+                        "Scope": {
+                            "actions": {
+                                "Terminate": {
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    },
+                                    "runAfter": {},
+                                    "type": "Terminate"
+                                }
+                            },
+                            "runAfter": {},
+                            "type": "Scope"
+                        },
+                        "Scope_2": {
+                            "actions": {
+                                "logicapp-error": {
+                                    "inputs": {
+                                        "body": {
+                                            "context": "@{workflow()}",
+                                            "error": "@{result('Scope')}"
+                                        },
+                                        "host": {
+                                            "triggerName": "manual",
+                                            "workflow": {
+                                                "id": "[variables('logicappError')]"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Workflow"
+                                }
+                            },
+                            "runAfter": {
+                                "Scope": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Scope"
+                        }
+                    },
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {},
+                    "triggers": {
+                        "manual": {
+                            "inputs": {
+                                "schema": {}
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', 'logicapp-error')]"
+            ]
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "name": "logicapp-2",
+            "apiVersion": "2016-06-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "actions": {
+                        "Initialize_variable": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "bool",
+                                        "type": "Boolean"
+                                    }
+                                ]
+                            },
+                            "runAfter": {},
+                            "type": "InitializeVariable"
+                        },
+                        "Scope": {
+                            "actions": {
+                                "Select": {
+                                    "inputs": {
+                                        "from": "@variable('bool')",
+                                        "select": {
+                                            "foo": "foo"
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Select"
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Scope"
+                        },
+                        "Scope_2": {
+                            "actions": {
+                                "Terminate": {
+                                    "inputs": {
+                                        "runError": {
+                                            "code": "",
+                                            "message": ""
+                                        },
+                                        "runStatus": "Failed"
+                                    },
+                                    "runAfter": {
+                                        "logicapp-alert": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate"
+                                },
+                                "logicapp-alert": {
+                                    "inputs": {
+                                        "body": {
+                                            "context": "@{workflow()}",
+                                            "error": "@{result('Scope')}"
+                                        },
+                                        "host": {
+                                            "triggerName": "manual",
+                                            "workflow": {
+                                                "id": "[variables('logicappError')]"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Workflow"
+                                }
+                            },
+                            "runAfter": {
+                                "Scope": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Scope"
+                        }
+                    },
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {},
+                    "triggers": {
+                        "manual": {
+                            "inputs": {
+                                "schema": {}
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', 'logicapp-error')]"
+            ]
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "name": "logicapp-error",
+            "apiVersion": "2016-06-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "actions": {
+                        "Response": {
+                            "inputs": {
+                                "statusCode": 200
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "error": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response"
+                        },
+                        "context": {
+                            "inputs": "@json(triggerBody().context)",
+                            "runAfter": {},
+                            "type": "Compose"
+                        },
+                        "error": {
+                            "inputs": "@json(triggerBody().error)",
+                            "runAfter": {
+                                "context": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose"
+                        }
+                    },
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {},
+                    "triggers": {
+                        "manual": {
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "context": {
+                                            "type": "string"
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "context",
+                                        "error"
+                                    ],
+                                    "type": "object"
+                                }
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "logicapp-alerts-dashboard",
+            "type": "Microsoft.Portal/dashboards",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "hidden-title": "logicapp-alerts-dashboard"
+            },
+            "apiVersion": "2015-08-01-preview",
+            "properties": {
+                "lenses": {
+                    "0": {
+                        "order": 0,
+                        "parts": {
+                            "0": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "colSpan": 11,
+                                    "rowSpan": 3
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "options",
+                                            "value": {
+                                                "charts": [
+                                                    {
+                                                        "metrics": [
+                                                            {
+                                                                "name": "RunsStarted",
+                                                                "resourceMetadata": {
+                                                                    "resourceId": "[variables('logicapp2')]"
+                                                                },
+                                                                "aggregationType": 4
+                                                            },
+                                                            {
+                                                                "name": "RunsFailed",
+                                                                "resourceMetadata": {
+                                                                    "resourceId": "[variables('logicapp2')]"
+                                                                },
+                                                                "aggregationType": 4
+                                                            }
+                                                        ],
+                                                        "title": "Runs Started and Failed",
+                                                        "visualization": {
+                                                            "chartType": 3,
+                                                            "legend": {
+                                                                "isVisible": true,
+                                                                "position": 2,
+                                                                "hideSubtitle": false
+                                                            },
+                                                            "axis": {
+                                                                "x": {
+                                                                    "isVisible": true,
+                                                                    "axisType": 2
+                                                                },
+                                                                "y": {
+                                                                    "isVisible": true,
+                                                                    "axisType": 1
+                                                                }
+                                                            },
+                                                            "timeBrushEnable": false
+                                                        },
+                                                        "itemDataModel": {
+                                                            "aggregation": 1,
+                                                            "metrics": [
+                                                                {
+                                                                    "id": {
+                                                                        "resourceDefinition": {
+                                                                            "id": "[variables('logicapp2')]"
+                                                                        },
+                                                                        "name": {
+                                                                            "id": "RunsStarted",
+                                                                            "displayName": "Runs Started"
+                                                                        },
+                                                                        "namespace": {
+                                                                            "name": "microsoft.logic/workflows"
+                                                                        }
+                                                                    },
+                                                                    "metricAggregation": 7,
+                                                                    "color": "#0fc11b"
+                                                                },
+                                                                {
+                                                                    "id": {
+                                                                        "resourceDefinition": {
+                                                                            "id": "[variables('logicapp2')]"
+                                                                        },
+                                                                        "name": {
+                                                                            "id": "RunsFailed",
+                                                                            "displayName": "Runs Failed"
+                                                                        },
+                                                                        "namespace": {
+                                                                            "name": "microsoft.logic/workflows"
+                                                                        }
+                                                                    },
+                                                                    "metricAggregation": 7,
+                                                                    "color": "#db4325"
+                                                                }
+                                                            ],
+                                                            "title": "Runs Started and Failed for logicapp-2",
+                                                            "version": {
+                                                                "major": 1,
+                                                                "minor": 0,
+                                                                "build": 0
+                                                            },
+                                                            "visualization": {
+                                                                "chartType": 3,
+                                                                "legend": {
+                                                                    "isVisible": true,
+                                                                    "position": 2,
+                                                                    "hideSubtitle": false
+                                                                },
+                                                                "axis": {
+                                                                    "x": {
+                                                                        "isVisible": true,
+                                                                        "axisType": 2
+                                                                    },
+                                                                    "y": {
+                                                                        "isVisible": true,
+                                                                        "axisType": 1
+                                                                    }
+                                                                },
+                                                                "timeBrushEnable": false
+                                                            },
+                                                            "titleKind": "Custom"
+                                                        }
+                                                    }
+                                                ],
+                                                "v2charts": true,
+                                                "version": 1
+                                            },
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "sharedTimeRange",
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                                    "settings": {}
+                                }
+                            }
+                        }
+                    }
+                },
+                "metadata": {
+                    "model": {
+                        "timeRange": {
+                            "value": {
+                                "relative": {
+                                    "duration": 24,
+                                    "timeUnit": 1
+                                }
+                            },
+                            "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+                        },
+                        "filterLocale": {
+                            "value": "en-us"
+                        },
+                        "filters": {
+                            "value": {
+                                "MsPortalFx_TimeRange": {
+                                    "model": {
+                                        "format": "local",
+                                        "granularity": "1m",
+                                        "relative": "1h"
+                                    },
+                                    "displayCache": {
+                                        "name": "Local Time",
+                                        "value": "Past hour"
+                                    },
+                                    "filteredPartIds": [
+                                        "StartboardPart-MonitorChartPart-0095db25-9182-4caf-a81a-0b35f0ee6c72"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', 'logicapp-2')]"
+            ]
+        },
+        {
+            "type": "Microsoft.Insights/actionGroups",
+            "apiVersion": "2018-03-01",
+            "name": "logicapp-alerts-action-group",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', 'logicapp-2')]",
+                "[resourceId('Microsoft.Logic/workflows', 'logicapp-error')]"
+            ],
+            "properties": {
+                "groupShortName": "Notification",
+                "enabled": true,
+                "emailReceivers": [
+                    {
+                        "name": "Notifications",
+                        "emailAddress": "[parameters('AlertEmail')]"
+                    }
+                ],
+                "smsReceivers": [],
+                "webhookReceivers": [],
+                "itsmReceivers": [],
+                "azureAppPushReceivers": [],
+                "automationRunbookReceivers": [],
+                "voiceReceivers": [],
+                "logicAppReceivers": [],
+                "azureFunctionReceivers": []
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "logicapp-alerts-metric-alerts",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', 'logicapp-2')]",
+                "[resourceId('Microsoft.Insights/actionGroups', 'logicapp-alerts-action-group')]"
+            ],
+            "properties": {
+                "description": "Unexpected amount of failure",
+                "severity": 1,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Logic/workflows', 'logicapp-2')]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT30M",
+                "templateType": 8,
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 1,
+                            "name": "Metric1",
+                            "metricNamespace": "Microsoft.Logic/workflows",
+                            "metricName": "RunFailurePercentage",
+                            "dimensions": [],
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Total",
+                            "monitorTemplateType": 8
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "autoMitigate": true,
+                "targetResourceType": "Microsoft.Logic/workflows",
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', 'logicapp-alerts-action-group')]",
+                        "webHookProperties": {}
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {}
+}
