@@ -66,7 +66,7 @@ Nothing special here. The workflow runs and succeed (we still have an error hand
 
 **logicapp-2**
 
-In this one, we generate an error by passing a wrong data type to the Select action (Boolean instead of Array). This way, we can easy test error and activity handling from this one.
+In this one, we generate an error by passing a wrong data type to the Select action (Boolean instead of Array). This way, we can easily generate and test an error from this one.
 
 
 ![](docs/pict11.PNG)
