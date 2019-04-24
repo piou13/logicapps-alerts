@@ -143,7 +143,7 @@ Then, We define a Metric Alert that triggers when the percentage of runs failure
 You can check these settings by going to the logicapp-2 (this is where we deployed the Metric Alert) in the Alerts section. You also have access to the alerts dashboard.
 
 
-![e](docs/pict8.PNG)
+![](docs/pict8.PNG)
 
 ![](docs/pict9.PNG)
 
