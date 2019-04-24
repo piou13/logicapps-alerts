@@ -30,7 +30,7 @@ This demonstration shows how to implement these 3 kinds of monitoring/alerts art
 Let's say we have a solution that relies on different LogicApps in the background and we want to manage monitoring and errors at this layer. Using the 3 previously described Azure features, we can start with this kind of high-level architecture:
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/highlevel.png)
+![](docs/highlevel.png =600x)
 
 
 Into the Azure Resources Group, we will find our bunch of LogicApps we want to manage.
@@ -59,7 +59,7 @@ For our scenario, let's build the 2 dummies LogicApps, one that success (logicap
 Nothing special here. The workflow runs and succeed (we still have an error handling in this one but it will never be hit).
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict10.PNG)
+![](docs/pict10.PNG =500x)
 
 
 **logicapp-2**
@@ -67,7 +67,7 @@ Nothing special here. The workflow runs and succeed (we still have an error hand
 In this one, we generate an error by passing a wrong data type to the Select action (Boolean instead of Array). This way, we can easy test error and activity handling from this one.
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict11.PNG)
+![](docs/pict11.PNG =500x)
 
 
 Now let's create the different monitoring/alerts artifacts.
@@ -83,7 +83,7 @@ I like to leverage an Azure LogicApp for this purpose because other LogicApps ca
 So, in our scenario, we going to create a new LogicApp called *logicapp-error* to manage any error that comes from other processes. We can represent it as follow:
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict1.png)
+![](docs/pict1.png =250x)
 
 
 This logicapp-alert endpoint exposes 2 parameters:
@@ -92,13 +92,13 @@ This logicapp-alert endpoint exposes 2 parameters:
 -  *error*: that contains information about the error itself.
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict4.PNG)
+![](docs/pict4.PNG =500x)
 
 
 In case of error in the other LogicApps, these parameters are sent by using the "Azure Logic Apps" built-in action and the 2 built-in functions *workflow()* and *result('scope_name')*.
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict13.PNG)
+![](docs/pict13.PNG =500x)
 
 
 
@@ -117,8 +117,7 @@ Example: If you want to get the full reference to the *logicapp-2* resource, you
 Finally, at the end, you get the dashboard deployed to your resources group and accessible from the dashboards menu.
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict5.PNG)
-
+![](docs/pict5.PNG =600x)
 
 
 ## Azure Monitor (section C)
@@ -132,23 +131,23 @@ It's a very useful additional layer of monitoring when you want to define if you
 In this example, we create an Action Group that use mail notification (but we can plug additional features like SMS, Azure Functions, LogicApp, WebHooks, etc...).
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict6.PNG)
+![](docs/pict6.PNG =600x)
 
 
 Then, We define a Metric Alert that triggers when the percentage of runs failures is over 1% for the last 30 minutes. When an alert is triggered, the Action Group is called.
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict7.PNG)
+![](docs/pict7.PNG =600x)
 
 
 You can check these settings by going to the logicapp-2 (this is where we deployed the Metric Alert) in the Alerts section. You also have access to the alerts dashboard.
 
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict8.PNG)
+![e](docs/pict8.PNG =250x)
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict9.PNG)
+![](docs/pict9.PNG =600x)
 
-![enter image description here](https://github.com/piou13/logicapps-alerts/blob/master/docs/pict15.PNG)
+![](docs/pict15.PNG =600x)
 
 
 In case of alert, Azure Monitor will send you an email by the mean of the Action Group.
