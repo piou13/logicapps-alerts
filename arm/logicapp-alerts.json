@@ -24,7 +24,33 @@
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "actions": {
-                        "Scope": {
+                        "Error_Handling_Scope": {
+                            "actions": {
+                                "logicapp-error": {
+                                    "inputs": {
+                                        "body": {
+                                            "context": "@{workflow()}",
+                                            "error": "@{result('Working_Scope')}"
+                                        },
+                                        "host": {
+                                            "triggerName": "manual",
+                                            "workflow": {
+                                                "id": "/subscriptions/020a1cd2-0d5e-44d5-ac03-98a839d54f7b/resourceGroups/Sewol-RG-SharePoint-Temp/providers/Microsoft.Logic/workflows/logicapp-error"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Workflow"
+                                }
+                            },
+                            "runAfter": {
+                                "Working_Scope": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Scope"
+                        },
+                        "Working_Scope": {
                             "actions": {
                                 "Terminate": {
                                     "inputs": {
@@ -35,32 +61,6 @@
                                 }
                             },
                             "runAfter": {},
-                            "type": "Scope"
-                        },
-                        "Scope_2": {
-                            "actions": {
-                                "logicapp-error": {
-                                    "inputs": {
-                                        "body": {
-                                            "context": "@{workflow()}",
-                                            "error": "@{result('Scope')}"
-                                        },
-                                        "host": {
-                                            "triggerName": "manual",
-                                            "workflow": {
-                                                "id": "[variables('logicappError')]"
-                                            }
-                                        }
-                                    },
-                                    "runAfter": {},
-                                    "type": "Workflow"
-                                }
-                            },
-                            "runAfter": {
-                                "Scope": [
-                                    "Failed"
-                                ]
-                            },
                             "type": "Scope"
                         }
                     },
@@ -92,19 +92,48 @@
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "actions": {
-                        "Initialize_variable": {
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "bool",
-                                        "type": "Boolean"
-                                    }
+                        "Error_Handling_Scope": {
+                            "actions": {
+                                "Call_logicapp-alert": {
+                                    "inputs": {
+                                        "body": {
+                                            "context": "@{workflow()}",
+                                            "error": "@{result('Failing_Scope')}"
+                                        },
+                                        "host": {
+                                            "triggerName": "manual",
+                                            "workflow": {
+                                                "id": "/subscriptions/020a1cd2-0d5e-44d5-ac03-98a839d54f7b/resourceGroups/Sewol-RG-SharePoint-Temp/providers/Microsoft.Logic/workflows/logicapp-error"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Workflow"
+                                },
+                                "Terminate": {
+                                    "inputs": {
+                                        "runError": {
+                                            "code": "",
+                                            "message": ""
+                                        },
+                                        "runStatus": "Failed"
+                                    },
+                                    "runAfter": {
+                                        "Call_logicapp-alert": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate"
+                                }
+                            },
+                            "runAfter": {
+                                "Failing_Scope": [
+                                    "Failed"
                                 ]
                             },
-                            "runAfter": {},
-                            "type": "InitializeVariable"
+                            "type": "Scope"
                         },
-                        "Scope": {
+                        "Failing_Scope": {
                             "actions": {
                                 "Select": {
                                     "inputs": {
@@ -118,52 +147,23 @@
                                 }
                             },
                             "runAfter": {
-                                "Initialize_variable": [
+                                "Initialize_test_variable": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Scope"
                         },
-                        "Scope_2": {
-                            "actions": {
-                                "Terminate": {
-                                    "inputs": {
-                                        "runError": {
-                                            "code": "",
-                                            "message": ""
-                                        },
-                                        "runStatus": "Failed"
-                                    },
-                                    "runAfter": {
-                                        "logicapp-alert": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Terminate"
-                                },
-                                "logicapp-alert": {
-                                    "inputs": {
-                                        "body": {
-                                            "context": "@{workflow()}",
-                                            "error": "@{result('Scope')}"
-                                        },
-                                        "host": {
-                                            "triggerName": "manual",
-                                            "workflow": {
-                                                "id": "[variables('logicappError')]"
-                                            }
-                                        }
-                                    },
-                                    "runAfter": {},
-                                    "type": "Workflow"
-                                }
-                            },
-                            "runAfter": {
-                                "Scope": [
-                                    "Failed"
+                        "Initialize_test_variable": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "bool",
+                                        "type": "Boolean"
+                                    }
                                 ]
                             },
-                            "type": "Scope"
+                            "runAfter": {},
+                            "type": "InitializeVariable"
                         }
                     },
                     "contentVersion": "1.0.0.0",
