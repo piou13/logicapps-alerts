@@ -35,7 +35,7 @@
                                         "host": {
                                             "triggerName": "manual",
                                             "workflow": {
-                                                "id": "/subscriptions/020a1cd2-0d5e-44d5-ac03-98a839d54f7b/resourceGroups/Sewol-RG-SharePoint-Temp/providers/Microsoft.Logic/workflows/logicapp-error"
+                                                "id": "[resourceId('Microsoft.Logic/workflows', 'logicapp-error')]"
                                             }
                                         }
                                     },
@@ -103,7 +103,7 @@
                                         "host": {
                                             "triggerName": "manual",
                                             "workflow": {
-                                                "id": "/subscriptions/020a1cd2-0d5e-44d5-ac03-98a839d54f7b/resourceGroups/Sewol-RG-SharePoint-Temp/providers/Microsoft.Logic/workflows/logicapp-error"
+                                                "id": "[resourceId('Microsoft.Logic/workflows', 'logicapp-error')]"
                                             }
                                         }
                                     },
