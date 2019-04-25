@@ -103,6 +103,9 @@ In case of error in the other LogicApps, these parameters are sent by using the 
 ![](docs/pict13.PNG)
 
 
+Then, it's up to you to plug any error management logic according to your needs.
+
+
 
 ## The Azure Dashboard (section B)
 
@@ -136,7 +139,7 @@ In this example, we create an Action Group that use mail notification (but we ca
 ![](docs/pict6.PNG)
 
 
-Then, We define a Metric Alert that triggers when the percentage of runs failures is over 1% for the last 30 minutes. When an alert is triggered, the Action Group is called.
+Then, We define a Metric Alert that triggers when the percentage of runs failures is over 1% for the last 30 minutes (pretty restrictive I know ;)). When an alert is triggered, the Action Group is called.
 
 
 ![](docs/pict7.PNG)
